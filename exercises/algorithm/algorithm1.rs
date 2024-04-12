@@ -2,11 +2,12 @@
 	single linked list merge
 	This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
+// I AM DONE
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
 use std::vec::*;
+use std::cmp::PartialOrd;
 
 #[derive(Debug)]
 struct Node<T> {
@@ -29,13 +30,17 @@ struct LinkedList<T> {
     end: Option<NonNull<Node<T>>>,
 }
 
-impl<T> Default for LinkedList<T> {
+impl<T> Default for LinkedList<T> 
+    where T: std::cmp::PartialOrd + Clone
+{
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<T> LinkedList<T> {
+impl<T> LinkedList<T> 
+    where T: std::cmp::PartialOrd + Clone
+{
     pub fn new() -> Self {
         Self {
             length: 0,
@@ -72,12 +77,77 @@ impl<T> LinkedList<T> {
 	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
 	{
 		//TODO
-		Self {
+        let mut rlt_lst = Self {
             length: 0,
             start: None,
             end: None,
-        }
+        };
+        let mut op_node_a = list_a.start;
+        let mut op_node_b = list_b.start;
+        let mut not_finish = true;
+        while not_finish {
+            match op_node_a {
+                None => {
+                    // todo
+                    // op_node_b = None;
+                    match op_node_b {
+                        None => {
+                            // todo, check
+                            not_finish = false;
+                        },
+                        Some(node_b) => {
+                            unsafe {
+                                let val_b = (*node_b.as_ptr()).val.clone();
+                                rlt_lst.add(val_b);
+                                op_node_b = (*node_b.as_ptr()).next
+                            }
+                        }
+                    }
+                },
+                Some(node_a) => {
+                    match op_node_b {
+                        None => {
+                            unsafe {
+                                let val_a = (*node_a.as_ptr()).val.clone();
+                                rlt_lst.add(val_a);
+                                op_node_a = (*node_a.as_ptr()).next
+                            }
+                        },
+                        Some(node_b) => {
+                            unsafe {
+                                let val_a = (*node_a.as_ptr()).val.clone();
+                                let val_b = (*node_b.as_ptr()).val.clone();
+                                if val_a < val_b {
+                                    rlt_lst.add(val_a);
+                                    op_node_a = (*node_a.as_ptr()).next
+
+                                }else{
+                                    rlt_lst.add(val_b);
+                                    op_node_b = (*node_b.as_ptr()).next
+                                }
+                            }   
+                        }
+                    }
+                }
+            }
+        };
+        rlt_lst
+        // let length = list_a.length + list_b.length;
+        // let start = match list_a.end {
+        //     None => { list_b.start },
+        //     Some(end_ptr) => { 
+        //         unsafe { (*end_ptr.as_ptr()).next = list_b.start};
+        //         list_a.start
+        //         }
+        // };
+		// Self {
+        //     length,
+        //     start,
+        //     end: list_b.end,
+        // }
 	}
+
+
 }
 
 impl<T> Display for LinkedList<T>
