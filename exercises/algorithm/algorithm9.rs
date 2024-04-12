@@ -6,7 +6,6 @@
 
 use std::cmp::Ord;
 use std::default::Default;
-use std::fmt::Display;
 
 pub struct Heap<T>
 where
@@ -97,7 +96,7 @@ where
 
 impl<T> Iterator for Heap<T>
 where
-    T: Default + std::fmt::Debug + Display,
+    T: Default,
 {
     type Item = T;
 
