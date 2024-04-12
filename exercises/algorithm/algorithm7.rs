@@ -3,7 +3,10 @@
 	This question requires you to use a stack to achieve a bracket match
 */
 
-// I AM NOT DONE
+// I AM DONE
+
+use std::rc::Rc;
+
 #[derive(Debug)]
 struct Stack<T> {
 	size: usize,
@@ -31,8 +34,14 @@ impl<T> Stack<T> {
 		self.size += 1;
 	}
 	fn pop(&mut self) -> Option<T> {
-		// TODO
-		None
+		let rlt = self.data.pop();
+		match rlt {
+			None => None,
+			_ => {
+				self.size -= 1;
+				rlt
+			}
+		}
 	}
 	fn peek(&self) -> Option<&T> {
 		if 0 == self.size {
@@ -99,10 +108,59 @@ impl<'a, T> Iterator for IterMut<'a, T> {
 	}
 }
 
+fn pare(c: char) -> Option<char> {
+	match c {
+		'(' => Some(')'),
+		'[' => Some(']'),
+		'{' => Some('}'),
+		')' => Some('('),
+		']' => Some('['),
+		'}' => Some('{'),
+		c => None
+	}
+}
+
 fn bracket_match(bracket: &str) -> bool
 {
-	//TODO
-	true
+	//TODO, how to do it with fold?
+	let mut s = Stack::new();
+	let sref = &mut s;
+	let mut rlt = true;
+	for c in bracket.chars() {
+		println!("# c {}",c);
+		if !rlt { return false };
+		rlt = {
+				match c {
+					c if c == '(' || c == '[' || c == '{' => {
+						sref.push(c);
+						println!("# push {}",c);
+						rlt
+					},
+					c if c == ')' || c == ']' || c == '}' => {
+						match sref.pop() {
+							None => { false }
+							Some(s) => {
+								println!("# pop {}", s);
+								match pare(c){
+									None => false,
+									Some(c_p) => {
+										if c_p == s {
+											true
+										} else {
+											false
+										}
+									}
+								}
+							}
+						}
+					},
+					_ => { 
+						rlt
+					}
+				}
+			}
+	}
+	rlt && sref.is_empty()
 }
 
 #[cfg(test)]
